@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: empty-trackload-api
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: CORS_ORIGIN
+        value: https://empty-trackload.onrender.com
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: DATA_FILE
+        value: /var/data/db.json
+      - key: PAYSTACK_CALLBACK_URL
+        value: https://empty-trackload.onrender.com/dashboard.html
+      # Set these in the Render dashboard (never commit real keys):
+      # PAYSTACK_SECRET_KEY, PAYSTACK_PUBLIC_KEY
+    disk:
+      name: loadmatch-data
+      mountPath: /var/data
+      sizeGB: 1

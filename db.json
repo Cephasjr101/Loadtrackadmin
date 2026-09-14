@@ -1,0 +1,60 @@
+{
+  "users": [
+    {
+      "id": "U_carrier1",
+      "email": "carrier@demo.gh",
+      "name": "Adom Haulage Ltd",
+      "phone": "+233 24 000 0001",
+      "role": "carrier",
+      "passwordHash": "$2a$10$Lkz8A0Eq/whvksw3YtSeQusmRvAHlBBHjsMUB6Eojmgub8g5mAMMm",
+      "verified": true,
+      "createdAt": "2026-09-14T16:21:42.859Z"
+    },
+    {
+      "id": "U_shipper1",
+      "email": "shipper@demo.gh",
+      "name": "Asante Furnishings",
+      "phone": "+233 24 000 0002",
+      "role": "shipper",
+      "passwordHash": "$2a$10$Lkz8A0Eq/whvksw3YtSeQusmRvAHlBBHjsMUB6Eojmgub8g5mAMMm",
+      "verified": true,
+      "createdAt": "2026-09-14T16:21:42.860Z"
+    }
+  ],
+  "trucks": [
+    {
+      "id": "T1",
+      "ownerId": "U_carrier1",
+      "owner": "Adom Haulage Ltd",
+      "plateNo": "GR 4521-22",
+      "from": "Kumasi",
+      "to": "Accra",
+      "truckType": "Box truck",
+      "capacityKg": 8000,
+      "volumeM3": 28,
+      "ratePerKm": 4.2,
+      "availableFrom": "2026-09-12",
+      "availableTo": "2026-09-20",
+      "verified": true,
+      "createdAt": "2026-09-14T16:21:42.860Z"
+    }
+  ],
+  "loads": [
+    {
+      "id": "L1",
+      "shipperId": "U_shipper1",
+      "company": "Asante Furnishings",
+      "cargo": "Furniture (40 items)",
+      "from": "Accra",
+      "to": "Kumasi",
+      "weightKg": 4500,
+      "volumeM3": 18,
+      "budgetGhs": 1300,
+      "pickupDate": "2026-09-15",
+      "deliveryDate": "2026-09-15",
+      "createdAt": "2026-09-14T16:21:42.860Z"
+    }
+  ],
+  "matches": [],
+  "crumbs": []
+}
