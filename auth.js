@@ -1,36 +1,33 @@
-import { Router } from "express";
-import bcrypt from "bcryptjs";
-import { db, uid, save } from "../db.js";
-import { signToken, requireAuth } from "../lib/auth.js";
-import { registerSchema, loginSchema, parse } from "../lib/validators.js";
+import jwt from "jsonwebtoken";
+import { config } from "../config.js";
+import { db } from "../db.js";
 
-const r = Router();
-
-r.post("/register", (req, res) => {
-  const d = parse(registerSchema, req.body);
-  if (db.users.some((u) => u.email === d.email))
-    return res.status(409).json({ error: "Email already registered" });
-  const user = {
-    id: uid("U"), email: d.email, name: d.name, phone: d.phone, role: d.role,
-    passwordHash: bcrypt.hashSync(d.password, 10),
-    verified: false, createdAt: new Date().toISOString(),
-  };
-  db.users.push(user); save();
-  res.status(201).json({ token: signToken(user), user: publicUser(user) });
-});
-
-r.post("/login", (req, res) => {
-  const d = parse(loginSchema, req.body);
-  const user = db.users.find((u) => u.email === d.email);
-  if (!user || !bcrypt.compareSync(d.password, user.passwordHash))
-    return res.status(401).json({ error: "Invalid email or password" });
-  res.json({ token: signToken(user), user: publicUser(user) });
-});
-
-r.get("/me", requireAuth, (req, res) => res.json({ user: publicUser(req.user) }));
-
-function publicUser(u) {
-  return { id: u.id, email: u.email, name: u.name, phone: u.phone, role: u.role, verified: u.verified };
+export function signToken(user) {
+  return jwt.sign({ sub: user.id, role: user.role }, config.jwtSecret, {
+    expiresIn: config.tokenTtl,
+  });
 }
 
-export default r;
+export function requireAuth(req, res, next) {
+  const h = req.headers.authorization || "";
+  const token = h.startsWith("Bearer ") ? h.slice(7) : null;
+  if (!token) return res.status(401).json({ error: "Authentication required" });
+  try {
+    const payload = jwt.verify(token, config.jwtSecret);
+    const user = db.users.find((u) => u.id === payload.sub);
+    if (!user) return res.status(401).json({ error: "Account not found" });
+    req.user = user;
+    next();
+  } catch {
+    return res.status(401).json({ error: "Invalid or expired token" });
+  }
+}
+
+export const requireRole = (...roles) => (req, res, next) =>
+  roles.includes(req.user.role) ? next() : res.status(403).json({ error: "Forbidden for role " + req.user.role });
+
+export function requireAdmin(req, res, next) {
+  if (req.headers["x-admin-key"] !== config.adminKey)
+    return res.status(401).json({ error: "Invalid admin key" });
+  next();
+}
